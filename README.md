@@ -6,13 +6,6 @@ Learn how AlphaFold 2 predicts protein 3D structures from sequences. This guide 
 
 AlphaFold 2 is an AI system developed by DeepMind (2021) that predicts protein structures (3D shapes) from amino acid sequences (1D strings of letters). Think of it as translating a recipe (sequence) into a finished dish (structure).
 
-**Key Terms:**
-- **Protein:** Biological molecule made of amino acids that performs functions in living organisms
-- **Amino Acid:** Building block of proteins (20 types: A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y)
-- **Sequence:** Order of amino acids, written as text: `MKFLKFSLLT...`
-- **Structure:** 3D shape showing where each atom is positioned in space
-- **Residue:** An amino acid that's part of a protein chain. When amino acids link together (via peptide bonds), they lose a water molecule and what remains is called a "residue." Example: A protein with 100 amino acids = 100 residues. Used for numbering positions (e.g., "residue 42" = the 42nd amino acid in the chain)
-
 ## 🚀 Quick Start
 
 ### Option 1: Google Colab (Easiest - No Installation!)
@@ -92,38 +85,6 @@ colabfold_batch your_protein.fasta results/
 # - *_plddt.png (confidence chart)
 # - *_pae.png (uncertainty heatmap)
 ```
-
-## 📚 Key Terminology
-
-| Term | Meaning |
-|------|---------|
-| **Residue** | An amino acid when it's part of a protein chain. When amino acids join via peptide bonds, they lose H₂O and form residues. Scientists use "residue" for counting/numbering positions (e.g., "residue 50" = 50th amino acid). A 200-residue protein = 200 amino acids long. |
-| **MSA** | Multiple Sequence Alignment - similar sequences from evolution |
-| **pLDDT** | Confidence score (0-100) for each residue position |
-| **PAE** | Predicted Aligned Error - uncertainty between residue pairs |
-| **PDB** | File format for 3D protein structures |
-| **Template** | Known structure used as reference (optional) |
-| **Domain** | Distinct structural region within a protein |
-
-## ❓ FAQ
-
-**Q: Do I need biology knowledge?**  
-A: No! This guide explains everything from scratch.
-
-**Q: How long does prediction take?**  
-A: Minutes to hours depending on sequence length (100-200 residues: ~10 minutes on GPU).
-
-**Q: Is AlphaFold always accurate?**  
-A: No. Always check confidence scores (pLDDT, PAE). High scores = trustworthy.
-
-**Q: Can I predict protein complexes?**  
-A: Yes! Use AlphaFold-Multimer (extension of AlphaFold 2) for multiple chains.
-
-**Q: What if my protein has low confidence?**  
-A: Could mean: insufficient MSA data, disordered regions, or novel fold. Use predictions cautiously.
-
-**Q: What about AlphaFold 3?**  
-A: See the AlphaFold 3 section below for details on the latest version that predicts protein-DNA, protein-RNA, and ligand complexes.
 
 ## 🆕 AlphaFold 3 (2024)
 
