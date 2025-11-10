@@ -205,3 +205,44 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# AlphaFold / ColabFold specific
+predictions/
+results/
+output/
+
+# Structure files (generated outputs)
+*.pdb
+*.cif
+*.mmcif
+
+# MSA search outputs
+*.a3m
+*.sto
+*.hhr
+*.atab
+*.msa
+*.aln
+
+# Keep example FASTA files
+!examples/*.fasta
+!examples/*.fa
+
+# Pickle and model files
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.ckpt
+params_*.npz
+
+# Generated plots and images (from predictions)
+*.png
+*.jpg
+*.jpeg
+!diagrams/**/*.png
+!diagrams/**/*.jpg
+
+# AlphaFold/ColabFold JSON outputs
+ranking_debug.json
+timings.json
