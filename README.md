@@ -16,18 +16,30 @@ AlphaFold 2 is an AI system developed by DeepMind (2021) that predicts protein s
 4. Run all cells (Runtime → Run all)
 5. Download results from the `results/` folder
 
-### Option 2: Run Example Locally
+### Option 2: Use Interactive Notebooks
+
+This repository includes two interactive Jupyter notebooks:
+
+1. **`alphafold2.ipynb`** - Complete AlphaFold 2 workflow with ColabFold
+   - Install and configure ColabFold
+   - Run actual protein structure predictions
+   - Visualize 3D structures interactively
+   - Analyze confidence metrics (pLDDT and PAE)
+   - Compare multiple model predictions
+
+2. **`alphafold3.ipynb`** - AlphaFold 3 preparation and analysis
+   - Prepare inputs for protein-DNA, protein-RNA, and protein-ligand complexes
+   - Submit jobs to AlphaFold Server
+   - Analyze and visualize results
 
 ```bash
 # Clone this repo
-git clone https://github.com/kimtth/science-alpha-fold-3-note.git
-cd science-alpha-fold-3-note
+git clone https://github.com/kimtth/science-alpha-fold-note.git
+cd science-alpha-fold-note
 
-# Run the quickstart
-python quickstart.py
+# Open notebooks in Jupyter or VS Code
+jupyter notebook alphafold2.ipynb
 ```
-
-This creates a demo FASTA file and shows you the command to run ColabFold locally.
 
 ## 🔄 How It Works (Simplified)
 
@@ -71,7 +83,7 @@ If you want to run ColabFold locally instead of using Google Colab:
 
 ```bash
 # Install ColabFold
-pip install colabfold[alphafold]
+pip install 'colabfold[alphafold-minus-jax] @ git+https://github.com/sokrypton/ColabFold'
 
 # Create a FASTA file (your_protein.fasta)
 >my_protein
@@ -85,6 +97,22 @@ colabfold_batch your_protein.fasta results/
 # - *_plddt.png (confidence chart)
 # - *_pae.png (uncertainty heatmap)
 ```
+
+## 📚 Key Terminology
+
+| Term | Meaning |
+|------|---------|
+| **Protein** | Biological molecule made of amino acids that performs functions in living organisms |
+| **Amino Acid** | Building block of proteins (20 types: A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y) |
+| **Sequence** | Order of amino acids, written as text: `MKFLKFSLLT...` |
+| **Structure** | 3D shape showing where each atom is positioned in space |
+| **Residue** | An amino acid when it's part of a protein chain. When amino acids link together (via peptide bonds), they lose a water molecule and what remains is called a "residue." Example: A protein with 100 amino acids = 100 residues. Used for numbering positions (e.g., "residue 42" = the 42nd amino acid in the chain) |
+| **MSA** | Multiple Sequence Alignment - similar sequences from evolution |
+| **pLDDT** | Confidence score (0-100) for each residue position |
+| **PAE** | Predicted Aligned Error - uncertainty between residue pairs |
+| **PDB** | File format for 3D protein structures |
+| **Template** | Known structure used as reference (optional) |
+| **Domain** | Distinct structural region within a protein |
 
 ## 🆕 AlphaFold 3 (2024)
 
@@ -111,14 +139,16 @@ AlphaFold 3, released by Google DeepMind in May 2024, significantly expands capa
 # AlphaFold 3 is available through:
 
 # 1. AlphaFold Server (Web Interface - Free for non-commercial use)
-#    https://alphafoldserver.com/welcome
+#    https://alphafoldserver.com
 
-# 2. API Access (Coming soon for academic/commercial licensing)
+# 2. API Access (Web interface only - programmatic access coming soon)
 ```
 
-**Current limitations:**
-- No local installation available yet (as of Nov 2024)
-- Limited to web server for academic use
+**Current limitations (as of Nov 2025):**
+- No local installation available yet
+- Limited to web server for non-commercial use
+- Free tier has daily usage limits
+- Academic users get more generous limits
 - Commercial use requires licensing
 
 ### Comparison: AlphaFold 2 vs AlphaFold 3
@@ -158,7 +188,7 @@ AlphaFold 3, released by Google DeepMind in May 2024, significantly expands capa
 - **DeepMind GitHub:** [alphafold](https://github.com/deepmind/alphafold)
 
 ### AlphaFold 3
-- **AlphaFold Server:** [Web Interface](https://alphafoldserver.com/welcome)
+- **AlphaFold Server:** [Web Interface](https://alphafoldserver.com)
 - **AlphaFold 3 Paper:** [Abramson et al., Nature 2024](https://www.nature.com/articles/s41586-024-07487-w)
 - **Blog Post:** [Google DeepMind Announcement](https://blog.google/technology/ai/google-deepmind-isomorphic-alphafold-3-ai-model/)
 
@@ -166,4 +196,3 @@ AlphaFold 3, released by Google DeepMind in May 2024, significantly expands capa
 - **PyMOL** - Professional molecular visualization
 - **ChimeraX** - Interactive 3D structure viewer
 - **Mol*** - Web-based viewer (no installation needed)
-

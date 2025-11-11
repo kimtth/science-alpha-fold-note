@@ -4,25 +4,19 @@ Visual guide to understanding how AlphaFold 2 predicts protein structures.
 
 ---
 
-## 📚 Key Terms Explained
+## 📚 Key Terms
 
-**Amino Acid** - Building block of proteins (like beads on a string). There are 20 types, each represented by a letter (A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y).
-
-**Residue** - An amino acid when it's part of a protein chain. When amino acids link together via peptide bonds, they lose a water molecule (H₂O) and what remains is called a "residue" (from "residuum" = what's left over). If a protein has 100 amino acids, it has 100 residues. Used for numbering: "residue 25" means the 25th amino acid position.
-
-**Sequence** - The order of amino acids in a protein, written as a string of letters (e.g., "MKFLKFS...").
-
-**MSA (Multiple Sequence Alignment)** - A collection of similar protein sequences from different organisms, aligned to show which positions are conserved across evolution.
-
-**pLDDT (predicted Local Distance Difference Test)** - A confidence score (0-100) for each residue. Higher = more confident prediction. >90 is very reliable.
-
-**PAE (Predicted Aligned Error)** - Shows uncertainty in the relative positions between pairs of residues. Helps identify well-defined vs. uncertain regions.
-
-**PDB (Protein Data Bank)** - Standard file format for storing 3D protein structures with atomic coordinates.
-
-**Template** - A known protein structure that's similar to your target, used as a reference.
-
-**Domain** - A distinct structural/functional region within a protein. Like chapters in a book.
+| Term | Definition |
+|------|------------|
+| **Amino Acid** | Building block of proteins (20 types: A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y) |
+| **Residue** | Amino acid in a protein chain (after losing H₂O during peptide bond formation) |
+| **Sequence** | Order of amino acids: `MKFLKFS...` |
+| **MSA** | Multiple Sequence Alignment - similar sequences from evolution |
+| **pLDDT** | Confidence score (0-100) per residue. >90 = very reliable |
+| **PAE** | Predicted Aligned Error - uncertainty between residue pairs |
+| **PDB** | File format for 3D protein structures |
+| **Template** | Known structure used as reference |
+| **Domain** | Distinct structural/functional region within a protein |
 
 ---
 
@@ -49,8 +43,6 @@ flowchart TD
     style E fill:#fff9c4
 ```
 
-**What this shows:** The complete flow from input sequence to final 3D structure with confidence scores.
-
 ---
 
 ## 2. Confidence Scores (pLDDT)
@@ -69,19 +61,7 @@ flowchart LR
     style F fill:#f44336,color:#fff
 ```
 
-**Color Guide for Visualization:**
-- 🟢 Green (>90): High confidence
-- 🟡 Yellow (70-90): Good confidence  
-- 🟠 Orange (50-70): Low confidence
-- 🔴 Red (<50): Very unreliable
-
-**Example interpretation:**
-```
-Residue:   M  K  F  L  K  F  S  L  L  T
-Position:  1  2  3  4  5  6  7  8  9  10
-pLDDT:    45 68 75 88 92 95 94 96 91 89
-Status:   🔴 ⚠️ 🟡 🟡 🟢 🟢 🟢 🟢 🟢 🟡
-```
+**Color Guide:** 🟢 >90 (High) | 🟡 70-90 (Good) | 🟠 50-70 (Low) | 🔴 <50 (Unreliable)
 
 ---
 
@@ -96,8 +76,6 @@ graph TD
     style B fill:#c8e6c9
 ```
 
-**Interpretation:** When the entire PAE matrix is blue (low error), the protein folds into one well-defined structure.
-
 ### Multiple Domains
 ```mermaid
 graph TD
@@ -110,8 +88,6 @@ graph TD
     style C fill:#ff9800
     style E fill:#c8e6c9
 ```
-
-**Interpretation:** Blue squares along the diagonal = confident domains. Orange/red elsewhere = uncertain how domains connect.
 
 ---
 
@@ -141,11 +117,6 @@ flowchart TD
     style G fill:#c8e6c9
 ```
 
-**Key Components (AlphaFold 2 Architecture):**
-- **Evoformer (48 blocks):** Processes evolutionary information and learns which residues interact
-- **Structure Module (8 layers):** Converts those relationships into actual 3D coordinates using Invariant Point Attention (IPA)
-- **Recycling (3 iterations):** Feeds predictions back to refine them (like drafting and editing)
-
 ---
 
 ## 5. MSA (Multiple Sequence Alignment)
@@ -163,18 +134,7 @@ flowchart LR
     style F fill:#c8e6c9
 ```
 
-**Why MSA matters:**
-If two positions in a protein always change together across evolution (co-evolution), they're likely close in 3D space. AlphaFold uses this signal.
-
-**Example:**
-```
-Your protein:    M K F L K F S L L T
-Similar (bacteria):  M K F L K F - L L T  (gap at position 7)
-Similar (yeast):     M K Y L K F S L L T  (Y instead of F)
-Similar (plant):     M K F L R F S L L T  (R instead of K)
-
-→ Positions 1, 2, 6, 8, 9, 10 are highly conserved (important!)
-```
+**Key insight:** Co-evolving positions are likely close in 3D space.
 
 ---
 
@@ -198,12 +158,6 @@ flowchart TD
     style G fill:#c8e6c9
     style H fill:#c8e6c9
 ```
-
-**Simplified:** 
-1. Start with a sequence (1D list of letters)
-2. Add evolutionary context (2D alignment)
-3. Learn residue relationships (2D grid)
-4. Output 3D structure with confidence scores
 
 ---
 
@@ -264,6 +218,106 @@ flowchart TD
 
 ---
 
+## 10. AlphaFold 3 Architecture (2024)
+
+```mermaid
+flowchart TD
+    A[Input Components] --> A1[Proteins]
+    A --> A2[DNA/RNA]
+    A --> A3[Ligands/Ions]
+    
+    A1 --> B[Pairformer<br/>Replaces Evoformer]
+    A2 --> B
+    A3 --> B
+    
+    B --> C[Diffusion Module<br/>Noise → Structure]
+    C --> D[Reverse Diffusion<br/>Denoise gradually]
+    
+    D --> E[Final Structure]
+    E --> F[Protein-DNA Complex]
+    E --> G[Protein-RNA Complex]
+    E --> H[Protein-Ligand Complex]
+    E --> I[Multi-component Assembly]
+    
+    style A fill:#e3f2fd
+    style B fill:#fff9c4
+    style C fill:#ffccbc
+    style D fill:#ffccbc
+    style E fill:#c8e6c9
+    style F fill:#c8e6c9
+    style G fill:#c8e6c9
+    style H fill:#c8e6c9
+    style I fill:#c8e6c9
+```
+
+**Key Changes from AlphaFold 2:**
+- **Pairformer:** More efficient than Evoformer, handles mixed biomolecules
+- **Diffusion Model:** Generates structures by denoising (like image generation AI)
+- **Unified Representation:** Single model for proteins, nucleic acids, and small molecules
+
+---
+
+## 11. AlphaFold 2 vs 3 Comparison
+
+```mermaid
+flowchart LR
+    A[AlphaFold 2<br/>2021] --> B[Proteins Only]
+    B --> B1[Single chains]
+    B --> B2[Multimers]
+    
+    C[AlphaFold 3<br/>2024] --> D[Biomolecular Complexes]
+    D --> D1[Protein-DNA]
+    D --> D2[Protein-RNA]
+    D --> D3[Protein-Ligand]
+    D --> D4[PTMs & Ions]
+    
+    style A fill:#90caf9
+    style C fill:#81c784
+    style B fill:#e3f2fd
+    style D fill:#c8e6c9
+```
+
+| Feature | AlphaFold 2 | AlphaFold 3 |
+|---------|-------------|-------------|
+| **Architecture** | Evoformer + IPA | Pairformer + Diffusion |
+| **Proteins** | ✅ Excellent | ✅ Enhanced |
+| **DNA/RNA** | ❌ No | ✅ Yes |
+| **Ligands** | ❌ No | ✅ Yes |
+| **Local Install** | ✅ Yes | ❌ Web only |
+| **Use Case** | Protein structures | Biomolecular complexes |
+
+---
+
+## 12. AlphaFold 3 Use Cases
+
+```mermaid
+flowchart TD
+    A[AlphaFold 3<br/>Applications] --> B[Drug Discovery<br/>💊]
+    A --> C[Gene Regulation<br/>🧬]
+    A --> D[CRISPR Design<br/>✂️]
+    A --> E[Enzyme Engineering<br/>⚗️]
+    
+    B --> B1[Ligand binding sites]
+    B --> B2[Drug-protein complexes]
+    
+    C --> C1[Transcription factors]
+    C --> C2[DNA-protein interactions]
+    
+    D --> D1[Cas9-RNA structures]
+    D --> D2[Guide RNA design]
+    
+    E --> E1[Cofactor binding]
+    E --> E2[Metal coordination]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#c8e6c9
+    style D fill:#c8e6c9
+    style E fill:#c8e6c9
+```
+
+---
+
 ## Quick Reference
 
 ### When to Trust Predictions
@@ -292,8 +346,15 @@ flowchart TD
 
 ## Additional Resources
 
+### Interactive Notebooks in This Repository
+- **`alphafold2.ipynb`** - Complete AlphaFold 2 workflow with ColabFold
+- **`alphafold3.ipynb`** - AlphaFold 3 preparation and analysis
+
+### Online Resources
 - **Try it online:** [ColabFold AlphaFold2 Notebook](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/AlphaFold2.ipynb)
-- **AlphaFold 2 Database:** Pre-computed structures for millions of proteins
+- **AlphaFold Server:** [alphafoldserver.com](https://alphafoldserver.com) (for AlphaFold 3)
+- **AlphaFold Database:** [alphafold.ebi.ac.uk](https://alphafold.ebi.ac.uk/) - Pre-computed structures
 - **Original Paper:** [Jumper et al., Nature 2021](https://www.nature.com/articles/s41586-021-03819-2)
-- **DeepMind Blog:** [AlphaFold 2 announcement](https://www.deepmind.com/research/highlighted-research/alphafold)
-- **Visualization:** PyMOL, ChimeraX, or online viewers
+- **AlphaFold 3 Paper:** [Abramson et al., Nature 2024](https://www.nature.com/articles/s41586-024-07487-w)
+- **DeepMind Blog:** [AlphaFold announcements](https://www.deepmind.com/research/highlighted-research/alphafold)
+- **Visualization:** PyMOL, ChimeraX, py3Dmol, or Mol* viewers
