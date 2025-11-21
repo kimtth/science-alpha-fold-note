@@ -41,6 +41,25 @@ cd science-alpha-fold-note
 jupyter notebook alphafold2.ipynb
 ```
 
+## 🧬 How to Get Protein Sequences
+
+To predict a structure, you need the amino acid sequence (FASTA format).
+
+1. **Go to [UniProt](https://www.uniprot.org/)** (Universal Protein Resource)
+2. **Search** for your protein (e.g., "Hemoglobin human")
+3. **Click** on the Entry ID (e.g., `P69905`)
+4. **Scroll** to the "Sequence" section
+5. **Copy** the sequence of letters (e.g., `MVLSPADKT...`)
+6. **Or click** "Download" → "FASTA (canonical)"
+
+**Example FASTA format:**
+```text
+>sp|P69905|HBA_HUMAN Hemoglobin subunit alpha
+MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHG
+KKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTP
+AVHASLDKFLASVSTVLTSKYR
+```
+
 ## 🔄 How It Works (Simplified)
 
 ```
@@ -77,7 +96,7 @@ See [`Diagram.md`](./Diagram.md) for detailed visual explanations.
 - **Protein Engineering:** Design new proteins with specific functions
 - **Structural Biology:** Explore protein function from structure
 
-## 🛠️ Installation (Optional - For Local Use)
+## Installation (Optional - For Local Use)
 
 If you want to run ColabFold locally instead of using Google Colab:
 
@@ -145,11 +164,9 @@ AlphaFold 3, released by Google DeepMind in May 2024, significantly expands capa
 ```
 
 **Current limitations (as of Nov 2025):**
-- No local installation available yet
-- Limited to web server for non-commercial use
-- Free tier has daily usage limits
-- Academic users get more generous limits
-- Commercial use requires licensing
+- **Local installation:** Code is available under CC-BY-NC-SA 4.0 license. Model parameters require approval via [Google form](https://forms.gle/svvpY4u2jsHEwWYS6) (granted at Google DeepMind's discretion)
+- **Web Server:** Available at [alphafoldserver.com](https://alphafoldserver.com) for non-commercial use with daily limits
+- **Commercial use:** Requires specific licensing from Google DeepMind
 
 ### Comparison: AlphaFold 2 vs AlphaFold 3
 
@@ -160,8 +177,7 @@ AlphaFold 3, released by Google DeepMind in May 2024, significantly expands capa
 | **Small molecules** | ❌ | ✅ Yes |
 | **Ions/Ligands** | ❌ | ✅ Yes |
 | **Architecture** | Evoformer + IPA | Pairformer + Diffusion |
-| **Local install** | ✅ Available | ❌ Web only |
-| **Open source** | ✅ Full code | ⚠️ Limited access |
+| **Local install** | ✅ Open Source (Apache 2.0) | ⚠️ Code available (CC-BY-NC-SA 4.0), weights require approval |
 | **Use case** | Protein structures | Biomolecular complexes |
 
 ### When to Use AlphaFold 3
