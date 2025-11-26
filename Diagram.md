@@ -24,323 +24,160 @@ Visual guide to understanding how AlphaFold 2 predicts protein structures.
 
 ```mermaid
 flowchart TD
-    A[Input Sequence<br/>e.g., MKFLKFSLLT...] --> B[Search for Similar Sequences<br/>MSA + Templates]
-    B --> C[Prepare Features<br/>Convert to numbers]
-    C --> D[Neural Network<br/>Evoformer]
-    D --> E[Structure Module<br/>Predict 3D coordinates]
-    E --> F{Recycle?<br/>Refine prediction}
-    F -->|Yes, repeat 3x| D
-    F -->|Done| G[Output Files]
-    G --> H[📄 PDB Structure<br/>3D coordinates]
-    G --> I[📊 pLDDT Scores<br/>Per-residue confidence]
-    G --> J[📈 PAE Matrix<br/>Position uncertainty]
-    
-    style A fill:#e3f2fd
-    style H fill:#c8e6c9
-    style I fill:#c8e6c9
-    style J fill:#c8e6c9
-    style D fill:#fff9c4
-    style E fill:#fff9c4
-```
+    subgraph Input ["1. Input Phase"]
+        A[("Protein Sequence<br/>(FASTA)")]
+    end
 
----
+    subgraph Core ["2. Processing Phase (Iterative)"]
+        B["MSA Search<br/>(Evolutionary Context)"] --> C["Feature Extraction"]
+        C --> D["Neural Network<br/>(Evoformer)"]
+        D --> E["Structure Module<br/>(3D Coordinates)"]
+        E --> F{"Recycle?<br/>(Refine 3x)"}
+        F -->|Yes| D
+    end
+
+    subgraph Result ["3. Output Phase"]
+        F -->|No| G[("Final PDB Structure")]
+        G --- H["Confidence Metrics<br/>(pLDDT + PAE)"]
+    end
+
+    A --> B
+
+    style Input fill:#e3f2fd,stroke:#1565c0
+    style Core fill:#fff9c4,stroke:#fbc02d
+    style Result fill:#c8e6c9,stroke:#2e7d32
+```
 
 ## 2. Confidence Scores (pLDDT)
 
 ```mermaid
-flowchart LR
-    A[pLDDT Score] --> B{Score Range?}
-    B -->|90-100| C[✅ Very High<br/>Trust completely]
-    B -->|70-89| D[✅ Good<br/>Generally reliable]
-    B -->|50-69| E[⚠️ Low<br/>Use with caution]
-    B -->|0-49| F[❌ Very Low<br/>Likely disordered]
-    
-    style C fill:#4caf50,color:#fff
-    style D fill:#8bc34a
-    style E fill:#ff9800
-    style F fill:#f44336,color:#fff
+graph LR
+    subgraph Scale ["Confidence Spectrum (pLDDT)"]
+        direction LR
+        A[0] --- B["🔴 Low / Disordered<br/>(< 50)"]
+        B --- C["🟠 Low Confidence<br/>(50 - 70)"]
+        C --- D["🟡 Good<br/>(70 - 90)"]
+        D --- E["🟢 Very High<br/>(> 90)"]
+        E --- F[100]
+    end
+
+    style B fill:#ffcdd2,stroke:#b71c1c
+    style C fill:#ffe0b2,stroke:#e65100
+    style D fill:#fff9c4,stroke:#fbc02d
+    style E fill:#c8e6c9,stroke:#1b5e20
 ```
 
-**Color Guide:** 🟢 >90 (High) | 🟡 70-90 (Good) | 🟠 50-70 (Low) | 🔴 <50 (Unreliable)
+## 3. PAE Matrix Interpretation
 
----
-
-## 3. PAE Matrix Patterns
-
-### Single Well-Defined Domain
 ```mermaid
 graph TD
-    A[Low PAE throughout<br/>Blue heatmap] --> B[Single compact domain<br/>High confidence structure]
+    subgraph Matrix ["PAE Matrix (Predicted Aligned Error)"]
+        A["Blue Region 🟦"] -->|Indicates| B["Rigid Relative Position<br/>(Fixed Domain)"]
+        C["Red/Yellow Region 🟥"] -->|Indicates| D["Uncertain Relative Position<br/>(Flexible / Separate Domains)"]
+    end
     
-    style A fill:#2196f3,color:#fff
-    style B fill:#c8e6c9
+    subgraph Decision ["Analysis"]
+        B --> E[Trust the domain structure]
+        D --> F[Do not interpret relative orientation]
+    end
+
+    style A fill:#bbdefb,stroke:#0d47a1
+    style C fill:#ffccbc,stroke:#bf360c
 ```
 
-### Multiple Domains
-```mermaid
-graph TD
-    A[Blue blocks on diagonal] --> B[Each domain is well-defined]
-    C[Orange/Red off-diagonal] --> D[Uncertain relative orientation]
-    B --> E[Trust individual domains]
-    D --> E
-    
-    style A fill:#2196f3,color:#fff
-    style C fill:#ff9800
-    style E fill:#c8e6c9
-```
-
----
-
-## 4. AlphaFold Architecture
+## 4. AlphaFold 2 Architecture
 
 ```mermaid
 flowchart TD
-    A[Input: Protein Sequence] --> B[Create MSA<br/>Find similar sequences]
-    B --> C[Input Embeddings<br/>Convert to numbers]
-    
-    C --> D[Evoformer Stack<br/>48 blocks]
-    D --> D1[MSA Attention<br/>Learn from evolution]
-    D1 --> D2[Pair Representation<br/>Residue relationships]
-    D2 --> D3[Triangle Updates<br/>Geometric constraints]
-    
-    D3 --> E[Structure Module<br/>8 layers]
-    E --> E1[Invariant Point Attention<br/>3D space reasoning]
-    E1 --> E2[Predict Coordinates<br/>xyz positions]
-    
-    E2 --> F{Recycle?<br/>3 iterations}
-    F -->|Yes| D
-    F -->|No| G[Final 3D Structure]
-    
-    style A fill:#e3f2fd
-    style D fill:#fff9c4
-    style E fill:#ffccbc
-    style G fill:#c8e6c9
+    subgraph Data ["Data Preparation"]
+        A["Input Sequence"] --> B["MSA (Evolution)"]
+        A --> C["Templates (Known Structures)"]
+    end
+
+    subgraph Network ["Deep Learning (Evoformer)"]
+        D["MSA Representation"] <-->|Exchange Info| E["Pair Representation"]
+        D --"48 Layers"--> D
+        E --"48 Layers"--> E
+    end
+
+    subgraph 3D ["Structure Generation"]
+        F["Structure Module"] --> G["Backbone Frames"]
+        G --> H["Side Chains"]
+    end
+
+    B --> D
+    C --> E
+    E --> F
+    H --> I[Final Coordinates]
+
+    style Data fill:#f3e5f5,stroke:#4a148c
+    style Network fill:#fff3e0,stroke:#e65100
+    style 3D fill:#e0f7fa,stroke:#006064
 ```
 
----
+## 5. AlphaFold 3 Architecture (Unified)
 
-## 5. MSA (Multiple Sequence Alignment)
+```mermaid
+flowchart TD
+    subgraph Inputs ["Unified Input"]
+        A[Protein] & B[DNA/RNA] & C[Ligands/Ions]
+    end
+
+    subgraph Model ["Deep Learning Core"]
+        D[Input Embedder] --> E[Pairformer Stack]
+        E --"Replaces Evoformer"--> E
+    end
+
+    subgraph Gen ["Generative Module"]
+        F[Diffusion Module] -->|Noise -> Structure| G[Denoising Steps]
+        G --> H[Final Assembly]
+    end
+
+    Inputs --> D
+    E --> F
+    H --> I[Complex Structure]
+
+    style Inputs fill:#e1f5fe,stroke:#01579b
+    style Model fill:#fff9c4,stroke:#fbc02d
+    style Gen fill:#fbe9e7,stroke:#bf360c
+```
+
+## 6. Comparison: AF2 vs AF3
 
 ```mermaid
 flowchart LR
-    A[Your Sequence] --> B[Search Databases<br/>UniRef, BFD, MGnify]
-    B --> C[Find Similar Proteins<br/>from other organisms]
-    C --> D[Align Sequences]
-    D --> E[MSA Shows:<br/>Conserved positions<br/>Co-evolving pairs]
-    E --> F[Helps Predict<br/>3D Structure]
-    
-    style A fill:#e3f2fd
-    style E fill:#fff9c4
-    style F fill:#c8e6c9
+    subgraph AF2 ["AlphaFold 2 (2021)"]
+        A[Protein Only] --> B[Evoformer]
+        B --> C[Structure Module]
+        C --> D[Single/Multimer PDB]
+    end
+
+    subgraph AF3 ["AlphaFold 3 (2024)"]
+        E[Protein + DNA/RNA + Ligand] --> F[Pairformer]
+        F --> G[Diffusion Module]
+        G --> H[Complex Structure]
+    end
+
+    style AF2 fill:#e3f2fd,stroke:#1565c0
+    style AF3 fill:#e8f5e9,stroke:#1b5e20
 ```
 
-**Key insight:** Co-evolving positions are likely close in 3D space.
-
----
-
-## 6. Data Flow & Dimensions
+## 7. Decision Guide: When to Trust?
 
 ```mermaid
 flowchart TD
-    A[Input Sequence<br/>100 residues] --> B[MSA Features<br/>512 sequences × 100 positions]
-    A --> C[Pair Features<br/>100 × 100 grid]
+    Start[Prediction Complete] --> Check_pLDDT{Check pLDDT}
     
-    B --> D[Evoformer Processing]
-    C --> D
+    Check_pLDDT -->|"High (>90)"| Check_PAE{"Check PAE"}
+    Check_pLDDT -->|"Low (<50)"| Discard["❌ Disordered / Unreliable"]
     
-    D --> E[Structure Module]
-    E --> F[Output Coordinates<br/>100 residues × 37 atoms × 3D]
-    E --> G[pLDDT Scores<br/>100 values]
-    E --> H[PAE Matrix<br/>100 × 100]
-    
-    style A fill:#e3f2fd
-    style F fill:#c8e6c9
-    style G fill:#c8e6c9
-    style H fill:#c8e6c9
+    Check_PAE -->|"Blue (Low Error)"| Trust["✅ High Confidence Structure"]
+    Check_PAE -->|"Red (High Error)"| Partial["⚠️ Trust Domains, Not Orientation"]
+
+    style Trust fill:#c8e6c9,stroke:#1b5e20
+    style Discard fill:#ffcdd2,stroke:#b71c1c
+    style Partial fill:#fff9c4,stroke:#fbc02d
 ```
-
----
-
-## 7. Confidence Decision Tree
-
-```mermaid
-flowchart TD
-    A[Got AlphaFold Prediction] --> B{Check pLDDT}
-    B -->|Most residues >90| C{Check PAE}
-    B -->|Many <70| D[⚠️ Low Confidence Region<br/>Possibly disordered]
-    
-    C -->|Blue blocks| E[✅ Excellent Prediction<br/>Use with confidence]
-    C -->|Orange/Red| F[⚠️ Domain Arrangement Uncertain<br/>Individual domains may be OK]
-    
-    D --> G[Consider:<br/>- Insufficient MSA<br/>- Disordered region<br/>- Novel fold]
-    
-    style E fill:#4caf50,color:#fff
-    style F fill:#ff9800
-    style D fill:#f44336,color:#fff
-```
-
----
-
-## 8. Workflow Summary
-
-```mermaid
-flowchart LR
-    A[1️⃣ Prepare<br/>FASTA file] --> B[2️⃣ Run<br/>ColabFold/AlphaFold]
-    B --> C[3️⃣ Check<br/>pLDDT scores]
-    C --> D[4️⃣ Inspect<br/>PAE matrix]
-    D --> E[5️⃣ Visualize<br/>3D structure]
-    E --> F[6️⃣ Validate<br/>against experiments]
-    
-    style A fill:#e3f2fd
-    style C fill:#fff9c4
-    style D fill:#fff9c4
-    style E fill:#c8e6c9
-    style F fill:#c8e6c9
-```
-
----
-
-## 9. Common Use Cases
-
-```mermaid
-flowchart TD
-    A[AlphaFold Predictions] --> B[Drug Discovery<br/>Find binding sites]
-    A --> C[Disease Research<br/>Study mutations]
-    A --> D[Protein Engineering<br/>Design new proteins]
-    A --> E[Structural Biology<br/>Understand function]
-    
-    style A fill:#e3f2fd
-    style B fill:#c8e6c9
-    style C fill:#c8e6c9
-    style D fill:#c8e6c9
-    style E fill:#c8e6c9
-```
-
----
-
-## 10. AlphaFold 3 Architecture (2024)
-
-```mermaid
-flowchart TD
-    A[Input Components] --> A1[Proteins]
-    A --> A2[DNA/RNA]
-    A --> A3[Ligands/Ions]
-    
-    A1 --> B[Pairformer<br/>Replaces Evoformer]
-    A2 --> B
-    A3 --> B
-    
-    B --> C[Diffusion Module<br/>Noise → Structure]
-    C --> D[Reverse Diffusion<br/>Denoise gradually]
-    
-    D --> E[Final Structure]
-    E --> F[Protein-DNA Complex]
-    E --> G[Protein-RNA Complex]
-    E --> H[Protein-Ligand Complex]
-    E --> I[Multi-component Assembly]
-    
-    style A fill:#e3f2fd
-    style B fill:#fff9c4
-    style C fill:#ffccbc
-    style D fill:#ffccbc
-    style E fill:#c8e6c9
-    style F fill:#c8e6c9
-    style G fill:#c8e6c9
-    style H fill:#c8e6c9
-    style I fill:#c8e6c9
-```
-
-**Key Changes from AlphaFold 2:**
-- **Pairformer:** More efficient than Evoformer, handles mixed biomolecules
-- **Diffusion Model:** Generates structures by denoising (like image generation AI)
-- **Unified Representation:** Single model for proteins, nucleic acids, and small molecules
-
----
-
-## 11. AlphaFold 2 vs 3 Comparison
-
-```mermaid
-flowchart LR
-    A[AlphaFold 2<br/>2021] --> B[Proteins Only]
-    B --> B1[Single chains]
-    B --> B2[Multimers]
-    
-    C[AlphaFold 3<br/>2024] --> D[Biomolecular Complexes]
-    D --> D1[Protein-DNA]
-    D --> D2[Protein-RNA]
-    D --> D3[Protein-Ligand]
-    D --> D4[PTMs & Ions]
-    
-    style A fill:#90caf9
-    style C fill:#81c784
-    style B fill:#e3f2fd
-    style D fill:#c8e6c9
-```
-
-| Feature | AlphaFold 2 | AlphaFold 3 |
-|---------|-------------|-------------|
-| **Architecture** | Evoformer + IPA | Pairformer + Diffusion |
-| **Proteins** | ✅ Excellent | ✅ Enhanced |
-| **DNA/RNA** | ❌ No | ✅ Yes |
-| **Ligands** | ❌ No | ✅ Yes |
-| **Local Install** | ✅ Yes | ❌ Web only |
-| **Use Case** | Protein structures | Biomolecular complexes |
-
----
-
-## 12. AlphaFold 3 Use Cases
-
-```mermaid
-flowchart TD
-    A[AlphaFold 3<br/>Applications] --> B[Drug Discovery<br/>💊]
-    A --> C[Gene Regulation<br/>🧬]
-    A --> D[CRISPR Design<br/>✂️]
-    A --> E[Enzyme Engineering<br/>⚗️]
-    
-    B --> B1[Ligand binding sites]
-    B --> B2[Drug-protein complexes]
-    
-    C --> C1[Transcription factors]
-    C --> C2[DNA-protein interactions]
-    
-    D --> D1[Cas9-RNA structures]
-    D --> D2[Guide RNA design]
-    
-    E --> E1[Cofactor binding]
-    E --> E2[Metal coordination]
-    
-    style A fill:#e3f2fd
-    style B fill:#c8e6c9
-    style C fill:#c8e6c9
-    style D fill:#c8e6c9
-    style E fill:#c8e6c9
-```
-
----
-
-## Quick Reference
-
-### When to Trust Predictions
-✅ **Trust:**
-- pLDDT > 90 throughout
-- Blue PAE matrix
-- Deep MSA (>100 sequences)
-
-⚠️ **Be Cautious:**
-- pLDDT 70-90
-- Yellow/orange PAE patterns
-- Multi-domain proteins
-
-❌ **Don't Trust:**
-- pLDDT < 50
-- Red PAE matrix
-- Very short sequences (<30 residues)
-
-### File Outputs
-- `ranked_0.pdb` - Best structure (3D coordinates)
-- `*_plddt.png` - Confidence per residue
-- `*_pae.png` - Position uncertainty heatmap
-- `ranking_debug.json` - Detailed scores
 
 ---
 
